@@ -18,7 +18,13 @@ class Game ():
       elif i == 'go':
         self.player.Go()
       elif i == 'map':
-        pass
+        for l in self.world.RM:
+          for i in l:
+            if i.inr == [self.player]:
+              print('[Я]',end="")
+            else:
+              print('[] ', end="")
+          print()
       else:
         print('Ошибка!')
 class World ():
