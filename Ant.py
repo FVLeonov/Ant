@@ -11,19 +11,26 @@ class Game ():
     self.Command()
   def Command (self):
     while True:
-      print('com: go, quit, map')
+      print('com: go, quit, map, look')
       i = input('-->')
       if i == 'quit':
         break
       elif i == 'go':
         self.player.Go()
+      elif i == 'look':
+        print("В этой локации:")
+        for i in self.player.room.inr:
+          print(i.info)
+        print()
+        print("Локация:",self.player.room.info)
+        print()
       elif i == 'map':
         for l in self.world.RM:
           for i in l:
-            if i.inr == [self.player]:
+            if i.inr.count(self.player) > 0:
               print('[Я]',end="")
             else:
-              print('[] ', end="")
+              print('[_]', end="")
           print()
       else:
         print('Ошибка!')
@@ -45,7 +52,10 @@ class World ():
     for j in range(self.WH):
       self.RM.append([])
       for i in range(self.WW):
-        self.RM[j].append(Room(j,i))
+        if i + j == 0:
+          self.RM[j].append(Anthill(j,i))
+        else:
+          self.RM[j].append(Room(j,i))
     for j in range(1,self.WH-1):
         for i in range(1,self.WW-1):
           r = self.RM[j][i] 
@@ -79,6 +89,7 @@ class World ():
     self.RM[0][-1].south = self.RM[1][-1]
     self.RM[0][0].south = self.RM[1][0]
 class Room ():
+  info = "Стартовая"
   def __init__ (self,y,x):
     self.north = None
     self.south = None
@@ -98,47 +109,45 @@ class Room ():
         fion(self.east) 
         )
     return s
-class Player ():
-  def __init__(self,w):
+class Anthill(Room):
+  info = "Муравейник"
+  def __init__(self,y,x):
+    super().__init__(y,x)
+class Bug ():
+  info = "Насекомое"
+  def __init__ (self,w):
     self.world = w
-    self.room = self.world.RM[1][1]
+    self.room = self.world.RM[2][2]
+class Player (Bug):
+  info = "Муравей(игрок)"
+  def __init__(self,w):
+    super().__init__(w)
     self.room.inr.append(self)
   def Go (self):
     while True:
+      r0 = self.room
       i = input('>->-> ')
-      if i == 'n':
-        if self.room.north != None:
-          self.room.inr.remove(self)
-          self.room = self.room.north
-          self.room.inr.append(self)
-          print("Координаты x{},y{}".format(self.room.x,self.room.y))
-        else:
-          print("Вы не можете ползти туда")
-      if i == 's':
-        if self.room.south != None:
-          self.room.inr.remove(self)
-          self.room = self.room.south
-          self.room.inr.append(self)
-          print("Координаты x{},y{}".format(self.room.x,self.room.y))
-        else:
-          print("Вы не можете ползти туда")
-      if i == 'w':
-        if self.room.west != None:
-          self.room.inr.remove(self)
-          self.room = self.room.west
-          self.room.inr.append(self)
-          print("Кординаты x{},y{}".format(self.room.x,self.room.y))
-        else:
-          print("Вы не можете ползти туда")
-      if i == 'e':
-        if self.room.east != None:
-          self.room.inr.remove(self)
-          self.room = self.room.east
-          self.room.inr.append(self)
-          print("Координаты x{},y{}".format(self.room.x,self.room.y))
-        else:
-          print("Вы не можете ползти туда")
-      if i == 'com':
+      if i == 'n' and self.room.north != None:
+        self.room.inr.remove(self)
+        self.room = self.room.north
+        self.room.inr.append(self)
+      if i == 's' and self.room.south != None:
+        self.room.inr.remove(self)
+        self.room = self.room.south
+        self.room.inr.append(self)
+      if i == 'w' and self.room.west != None:
+        self.room.inr.remove(self)
+        self.room = self.room.west
+        self.room.inr.append(self)
+      if i == 'e' and self.room.east != None:
+        self.room.inr.remove(self)
+        self.room = self.room.east
+        self.room.inr.append(self)
+      if i == "com":
         break
+      if r0 != self.room:
+        print("{}".format(self.room.info))
+      else:
+        print("Вы не можете ползти туда")
 if __name__ == "__main__":
   g = Game()
